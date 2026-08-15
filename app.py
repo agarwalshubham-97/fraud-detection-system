@@ -5,15 +5,63 @@ import pandas as pd
 model = joblib.load("models/fraud_detection_model.pkl")
 feature_names = joblib.load("models/feature_names.pkl")
 config = joblib.load("models/model_config.pkl")
+# Sidebar
+st.sidebar.title("💳 Fraud Detection")
+st.sidebar.markdown("---")
 
-st.title("💳 Fraud Detection System")
+st.sidebar.write("### Model Information")
 
-st.write("Machine Learning based credit card fraud detection.")
+st.sidebar.write(
+    f"**Model:** Random Forest"
+)
 
-st.success("Model loaded successfully!")
+st.sidebar.write(
+    f"**Features:** {len(feature_names)}"
+)
 
-st.write("Number of features:", len(feature_names))
-st.write("Detection threshold:", config["threshold"])
+st.sidebar.write(
+    f"**Threshold:** {config['threshold'] * 100:.0f}%"
+)
+
+st.sidebar.markdown("---")
+
+st.sidebar.write("### Project")
+
+st.sidebar.write(
+    "Credit Card Fraud Detection System"
+)
+
+st.sidebar.write(
+    "Built with Python, Scikit-learn and Streamlit."
+)
+
+st.title("💳 Credit Card Fraud Detection System")
+
+st.caption(
+    "Machine Learning powered fraud detection dashboard"
+)
+
+st.write(
+    "An ML-powered dashboard for detecting potentially fraudulent "
+    "credit card transactions."
+)
+
+st.success("🟢 Random Forest model loaded successfully")
+st.divider()
+
+info_col1, info_col2 = st.columns(2)
+
+with info_col1:
+    st.metric(
+        "Model Features",
+        len(feature_names)
+    )
+
+with info_col2:
+    st.metric(
+        "Detection Threshold",
+        f"{config['threshold'] * 100:.0f}%"
+    )
 
 
 st.header("Transaction Prediction")
@@ -61,13 +109,26 @@ if st.button("Check Transaction"):
 
     st.subheader("Prediction Result")
 
+    probability_percent = probability * 100
+
     if result == "FRAUD":
         st.error("🚨 FRAUD TRANSACTION")
     else:
         st.success("✅ NORMAL TRANSACTION")
 
-    st.write(f"Fraud Probability: **{probability * 100:.4f}%**")
+    st.metric(
+        "Fraud Probability",
+        f"{probability_percent:.2f}%"
+    )
 
+    if probability_percent < 10:
+        st.success("🟢 Low Risk")
+
+    elif probability_percent < 50:
+        st.warning("🟡 Medium Risk")
+
+    else:
+        st.error("🔴 High Risk")
 
 st.header("📂 Batch Transaction Prediction")
 
@@ -112,7 +173,7 @@ if uploaded_file is not None:
         data["Prediction"] = [
             "FRAUD" if prediction == 1 else "NORMAL"
             for prediction in predictions
-]
+        ]
 
         # Convert probability to percentage
         data["Fraud Probability"] = probabilities * 100
@@ -135,10 +196,11 @@ if uploaded_file is not None:
         total_transactions = len(data)
         fraud_transactions = (predictions == 1).sum()
         normal_transactions = (predictions == 0).sum()
+        fraud_rate = (fraud_transactions / total_transactions) * 100
 
         st.subheader("📊 Transaction Summary")
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
              st.metric("Total Transactions", total_transactions)
@@ -149,9 +211,41 @@ if uploaded_file is not None:
         with col3:
              st.metric("Fraud Transactions", fraud_transactions)
 
+        with col4:
+             st.metric(
+                 "Fraud Rate",
+                 f"{fraud_rate:.2f}%"
+            )
         st.write("Current threshold:", config["threshold"])
+
+# Fraud vs Normal chart
+        st.subheader("🚨 Fraud vs Normal Transactions")
+
+        status_chart = pd.DataFrame({
+             "Status": ["Normal", "Fraud"],
+             "Count": [normal_transactions, fraud_transactions]
+        })
+
+        st.bar_chart(
+        status_chart.set_index("Status")
+        )
+
+        # Fraud probability chart
         st.subheader("📈 Fraud Probability by Transaction")
 
+        chart_data = data[["Fraud Probability"]].copy()
+
+        chart_data["Transaction"] = [
+            f"Transaction {i}"
+            for i in range(len(chart_data))
+        ]
+
+        chart_data = chart_data.set_index("Transaction")
+
+        st.bar_chart(
+            chart_data,
+            y="Fraud Probability"
+        )
         chart_data = data[["Fraud Probability"]].copy()
 
         chart_data["Transaction"] = [
