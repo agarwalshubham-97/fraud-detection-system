@@ -1,5 +1,6 @@
 import joblib
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 
@@ -34,8 +35,9 @@ def test_feature_count():
 def test_prediction_output():
     """Check that predictions return valid classes."""
 
-    sample_data = np.zeros(
-        (1, len(feature_names))
+    sample_data = pd.DataFrame(
+        np.zeros((1, len(feature_names))),
+        columns=feature_names
     )
 
     prediction = model.predict(sample_data)
@@ -46,8 +48,9 @@ def test_prediction_output():
 def test_probability_range():
     """Check that fraud probability is between 0 and 1."""
 
-    sample_data = np.zeros(
-        (1, len(feature_names))
+    sample_data = pd.DataFrame(
+        np.zeros((1, len(feature_names))),
+        columns=feature_names
     )
 
     probability = model.predict_proba(
@@ -55,7 +58,6 @@ def test_probability_range():
     )[0][1]
 
     assert 0 <= probability <= 1
-
 
 def test_threshold_valid():
     """Check that the configured threshold is valid."""
