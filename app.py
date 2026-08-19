@@ -690,11 +690,43 @@ pr_data = pd.DataFrame({
 st.subheader("📉 Precision–Recall Curve")
 
 st.line_chart(
-    pr_data.set_index("Recall")
-)
-
-
+    pr_data.set_index("Recall"))
 
 st.write(
     f"**PR-AUC:** {real_pr_auc:.4f}"
-)       
+)
+# ============================================================
+# Feature Importance
+# ============================================================
+st.header("🧠 Model Explainability")
+
+st.subheader("📊 Feature Importance")
+
+if hasattr(model, "feature_importances_"):
+
+    feature_importance_data = pd.DataFrame({
+        "Feature": feature_names,
+        "Importance": model.feature_importances_
+    })
+
+    feature_importance_data = feature_importance_data.sort_values(
+        by="Importance",
+        ascending=False
+    )
+
+    st.bar_chart(
+        feature_importance_data.set_index("Feature")
+    )
+
+    st.subheader("🔝 Top 10 Most Important Features")
+
+    st.dataframe(
+        feature_importance_data.head(10),
+        width="stretch"
+    )
+
+else:
+
+    st.info(
+        "Feature importance is not available for this model."
+    )
