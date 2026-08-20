@@ -1,5 +1,7 @@
 # 💳 Credit Card Fraud Detection System
 
+![Run Model Tests](https://github.com/agarwalshubham-97/fraud-detection-system/actions/workflows/tests.yml/badge.svg)
+
 An end-to-end machine learning project for detecting potentially fraudulent credit card transactions using a **Random Forest classifier** and an interactive **Streamlit dashboard**.
 
 The application supports individual transaction predictions, batch CSV predictions, configurable classification thresholds, real test-set evaluation, confusion matrix analysis, ROC and Precision–Recall curves, and threshold sensitivity analysis.
