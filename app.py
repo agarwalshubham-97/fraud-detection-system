@@ -2,6 +2,9 @@
 import streamlit as st
 import joblib
 import pandas as pd
+from fraud_utils import (
+    calculate_classification_metrics,
+)
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
     page_icon="💳",
@@ -113,15 +116,17 @@ y_probability = evaluation_data["Probability"]
 
 
 
-y_pred = (
-    y_probability >= evaluation_threshold
-).astype(int)
-
 # Calculate classification metrics
-real_accuracy = accuracy_score(y_actual, y_pred)
-real_precision = precision_score(y_actual, y_pred, zero_division=0)
-real_recall = recall_score(y_actual, y_pred, zero_division=0)
-real_f1 = f1_score(y_actual, y_pred, zero_division=0)
+classification_metrics = calculate_classification_metrics(
+    y_actual,
+    y_probability,
+    evaluation_threshold,
+)
+
+real_accuracy = classification_metrics["accuracy"]
+real_precision = classification_metrics["precision"]
+real_recall = classification_metrics["recall"]
+real_f1 = classification_metrics["f1"]
 
 # Calculate ranking metrics
 real_roc_auc = roc_auc_score(
