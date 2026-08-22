@@ -16,10 +16,6 @@ from sklearn.metrics import (
     roc_curve,
     roc_auc_score,
     average_precision_score,
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score
 )
 
 model = joblib.load("models/fraud_detection_model.pkl")
@@ -190,48 +186,36 @@ threshold_results = []
 
 for test_threshold in threshold_values:
 
-    test_predictions = (
-        y_probability >= test_threshold
-    ).astype(int)
+    metrics = calculate_classification_metrics(
+        y_actual,
+        y_probability,
+        test_threshold,
+    )
 
     threshold_results.append({
         "Threshold": f"{test_threshold:.2f}",
         "Current Selection": (
             "✅ Current"
-            if round(test_threshold, 2) == round(evaluation_threshold, 2)
+            if round(test_threshold, 2)
+            == round(evaluation_threshold, 2)
             else ""
         ),
         "Accuracy (%)": round(
-            accuracy_score(
-                y_actual,
-                test_predictions
-            ) * 100,
-            2
+            metrics["accuracy"] * 100,
+            2,
         ),
         "Precision (%)": round(
-            precision_score(
-                y_actual,
-                test_predictions,
-                zero_division=0
-            ) * 100,
-            2
+            metrics["precision"] * 100,
+            2,
         ),
         "Recall (%)": round(
-            recall_score(
-                y_actual,
-                test_predictions,
-                zero_division=0
-            ) * 100,
-            2
+            metrics["recall"] * 100,
+            2,
         ),
         "F1 Score (%)": round(
-            f1_score(
-                y_actual,
-                test_predictions,
-                zero_division=0
-            ) * 100,
-            2
-        )
+            metrics["f1"] * 100,
+            2,
+        ),
     })
 
 threshold_df = pd.DataFrame(threshold_results)
