@@ -9,10 +9,15 @@ from sklearn.metrics import (
 
 def apply_threshold(probabilities, threshold):
     """Convert fraud probabilities into predicted classes."""
+
+    if not 0 <= threshold <= 1:
+        raise ValueError(
+            "Threshold must be between 0 and 1."
+        )
+
     probabilities = pd.Series(probabilities)
 
     return (probabilities >= threshold).astype(int)
-
 
 def calculate_classification_metrics(
     actual,

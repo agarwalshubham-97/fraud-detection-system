@@ -1,10 +1,24 @@
 import pandas as pd
+import pytest
 
 from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
 )
+def test_apply_threshold_invalid_threshold():
+    probabilities = [0.2, 0.5, 0.8]
 
+    with pytest.raises(ValueError):
+        apply_threshold(
+            probabilities,
+            -0.1,
+        )
+
+    with pytest.raises(ValueError):
+        apply_threshold(
+            probabilities,
+            1.1,
+        )
 
 def test_apply_threshold():
     probabilities = [0.2, 0.5, 0.8]
