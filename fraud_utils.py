@@ -17,6 +17,14 @@ def apply_threshold(probabilities, threshold):
 
     probabilities = pd.Series(probabilities)
 
+    if (
+        probabilities.lt(0).any()
+        or probabilities.gt(1).any()
+    ):
+        raise ValueError(
+            "Probabilities must be between 0 and 1."
+        )
+
     return (probabilities >= threshold).astype(int)
 
 def calculate_classification_metrics(

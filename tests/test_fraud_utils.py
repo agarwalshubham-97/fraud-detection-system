@@ -20,6 +20,19 @@ def test_apply_threshold_invalid_threshold():
             1.1,
         )
 
+def test_apply_threshold_invalid_probabilities():
+    with pytest.raises(ValueError):
+        apply_threshold(
+            [-0.1, 0.5, 0.8],
+            0.5,
+        )
+
+    with pytest.raises(ValueError):
+        apply_threshold(
+            [0.2, 0.5, 1.1],
+            0.5,
+        )
+
 def test_apply_threshold():
     probabilities = [0.2, 0.5, 0.8]
 
