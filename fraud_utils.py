@@ -16,6 +16,17 @@ def apply_threshold(probabilities, threshold):
         )
 
     probabilities = pd.Series(probabilities)
+
+    try:
+        probabilities = pd.to_numeric(
+            probabilities,
+            errors="raise",
+        )
+    except (ValueError, TypeError):
+        raise ValueError(
+            "Probabilities must contain numeric values."
+        )
+
     if probabilities.isna().any():
         raise ValueError(
             "Probabilities cannot contain missing values."
