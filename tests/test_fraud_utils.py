@@ -32,6 +32,12 @@ def test_apply_threshold_invalid_probabilities():
             [0.2, 0.5, 1.1],
             0.5,
         )
+def test_apply_threshold_missing_probability():
+    with pytest.raises(ValueError):
+        apply_threshold(
+            [0.2, None, 0.8],
+            0.5,
+        )
 
 def test_apply_threshold():
     probabilities = [0.2, 0.5, 0.8]

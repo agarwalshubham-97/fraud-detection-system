@@ -16,6 +16,10 @@ def apply_threshold(probabilities, threshold):
         )
 
     probabilities = pd.Series(probabilities)
+    if probabilities.isna().any():
+        raise ValueError(
+            "Probabilities cannot contain missing values."
+        )
 
     if (
         probabilities.lt(0).any()
