@@ -18,6 +18,17 @@ def test_apply_threshold():
 
     assert predictions.equals(expected)
 
+def test_apply_threshold_boundary():
+    probabilities = [0.49, 0.50, 0.51]
+
+    predictions = apply_threshold(
+        probabilities,
+        0.50,
+    )
+
+    expected = pd.Series([0, 1, 1])
+
+    assert predictions.equals(expected)
 
 def test_classification_metrics():
     actual = [0, 0, 1, 1]
@@ -33,3 +44,5 @@ def test_classification_metrics():
     assert metrics["precision"] == 1.0
     assert metrics["recall"] == 1.0
     assert metrics["f1"] == 1.0
+
+
