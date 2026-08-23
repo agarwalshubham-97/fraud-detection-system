@@ -590,6 +590,9 @@ if uploaded_file is not None:
         st.divider()
         st.subheader("🧮 Confusion Matrix")
 
+        y_pred = (
+            y_probability >= evaluation_threshold
+        ).astype(int)
         cm = confusion_matrix(
             y_actual,
             y_pred
