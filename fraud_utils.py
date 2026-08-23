@@ -59,6 +59,12 @@ def calculate_classification_metrics(
         raise ValueError(
             "Actual values must contain only 0 and 1."
         )
+
+    if len(actual) != len(probabilities):
+        raise ValueError(
+            "Actual values and probabilities must have the same length."
+        )
+
     predictions = apply_threshold(
         probabilities,
         threshold,

@@ -85,6 +85,14 @@ def test_classification_metrics_missing_actual():
             0.5,
         )
 
+def test_classification_metrics_mismatched_lengths():
+    with pytest.raises(ValueError):
+        calculate_classification_metrics(
+            [0, 1, 1],
+            [0.2, 0.8],
+            0.5,
+        )
+
 def test_classification_metrics():
     actual = [0, 0, 1, 1]
     probabilities = [0.1, 0.4, 0.6, 0.9]
