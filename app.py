@@ -403,7 +403,26 @@ uploaded_file = st.file_uploader(
 )
 if uploaded_file is not None:
 
-    data = pd.read_csv(uploaded_file)
+    try:
+        data = pd.read_csv(uploaded_file)
+
+    except pd.errors.EmptyDataError:
+        st.error(
+            "The uploaded CSV file is empty."
+        )
+        st.stop()
+
+    except Exception as error:
+        st.error(
+            f"Unable to read the CSV file: {error}"
+        )
+        st.stop()
+
+    if data.empty:
+        st.error(
+            "The uploaded CSV file contains no transaction data."
+        )
+        st.stop()
 
     st.subheader("📋 Uploaded Data")
 
@@ -430,7 +449,32 @@ if uploaded_file is not None:
         st.success("All required features are present!")
 
         # Keep only the features used by the model
-        transaction_data = data[feature_names]
+        transaction_data = data[feature_names].copy()
+
+        # Check for missing values
+        if transaction_data.isna().any().any():
+            missing_columns = transaction_data.columns[
+                transaction_data.isna().any()
+            ].tolist()
+
+            st.error(
+                "The CSV contains missing values in: "
+                + ", ".join(missing_columns)
+            )
+            st.stop()
+
+        # Check that all feature values are numeric
+        try:
+            transaction_data = transaction_data.apply(
+                pd.to_numeric,
+                errors="raise",
+            )
+
+        except (ValueError, TypeError):
+            st.error(
+                "All required feature values must be numeric."
+            )
+            st.stop()
 
         probabilities = model.predict_proba(transaction_data)[:, 1]
 
