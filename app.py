@@ -352,7 +352,16 @@ if st.button(
     transaction = transaction[feature_names]
 
     # Get fraud probability
-    probability = model.predict_proba(transaction)[0][1]
+    try:
+        probability = model.predict_proba(
+            transaction
+        )[0][1]
+
+    except Exception as error:
+        st.error(
+            f"Unable to generate prediction: {error}"
+        )
+        st.stop()
 
     # Apply saved threshold
     if probability >= evaluation_threshold:
@@ -476,7 +485,16 @@ if uploaded_file is not None:
             )
             st.stop()
 
-        probabilities = model.predict_proba(transaction_data)[:, 1]
+        try:
+            probabilities = model.predict_proba(
+                transaction_data
+            )[:, 1]
+
+        except Exception as error:
+            st.error(
+                f"Unable to generate predictions: {error}"
+            )
+            st.stop()
 
         # Use the threshold selected during model evaluation
         threshold = evaluation_threshold
