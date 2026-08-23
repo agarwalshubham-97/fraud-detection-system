@@ -48,7 +48,17 @@ def calculate_classification_metrics(
     threshold,
 ):
     """Calculate classification metrics using a threshold."""
+    actual = pd.Series(actual)
 
+    if actual.isna().any():
+        raise ValueError(
+            "Actual values cannot contain missing values."
+        )
+
+    if not actual.isin([0, 1]).all():
+        raise ValueError(
+            "Actual values must contain only 0 and 1."
+        )
     predictions = apply_threshold(
         probabilities,
         threshold,
