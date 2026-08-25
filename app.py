@@ -3,7 +3,9 @@ import streamlit as st
 import joblib
 import pandas as pd
 from fraud_utils import (
+    apply_threshold,
     calculate_classification_metrics,
+    validate_transaction_data,
 )
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
@@ -487,33 +489,14 @@ if uploaded_file is not None:
             with st.expander("View extra columns"):
                 st.write(extra_columns)
 
-        # Keep only the features used by the model
-
-        transaction_data = data[feature_names].copy()
-
-        # Check for missing values
-        if transaction_data.isna().any().any():
-            missing_columns = transaction_data.columns[
-                transaction_data.isna().any()
-            ].tolist()
-
-            st.error(
-                "The CSV contains missing values in: "
-                + ", ".join(missing_columns)
-            )
-            st.stop()
-
-        # Check that all feature values are numeric
         try:
-            transaction_data = transaction_data.apply(
-                pd.to_numeric,
-                errors="raise",
+            transaction_data = validate_transaction_data(
+                data,
+                feature_names,
             )
 
-        except (ValueError, TypeError):
-            st.error(
-                "All required feature values must be numeric."
-            )
+        except ValueError as error:
+            st.error(str(error))
             st.stop()
 
         try:

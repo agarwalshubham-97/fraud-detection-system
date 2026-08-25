@@ -4,6 +4,7 @@ import pytest
 from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
+    validate_transaction_data,
 )
 def test_apply_threshold_invalid_threshold():
     probabilities = [0.2, 0.5, 0.8]
@@ -107,5 +108,102 @@ def test_classification_metrics():
     assert metrics["precision"] == 1.0
     assert metrics["recall"] == 1.0
     assert metrics["f1"] == 1.0
+def test_validate_transaction_data_missing_features():
+    data = pd.DataFrame(
+        {
+            "Time": [100],
+            "V1": [0.5],
+        }
+    )
 
+    feature_names = [
+        "Time",
+        "V1",
+        "Amount",
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="Missing required features",
+    ):
+        validate_transaction_data(
+            data,
+            feature_names,
+        )
+
+
+def test_validate_transaction_data_missing_values():
+    data = pd.DataFrame(
+        {
+            "Time": [100, 200],
+            "V1": [0.5, None],
+            "Amount": [50.0, 75.0],
+        }
+    )
+
+    feature_names = [
+        "Time",
+        "V1",
+        "Amount",
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="Missing values",
+    ):
+        validate_transaction_data(
+            data,
+            feature_names,
+        )
+
+
+def test_validate_transaction_data_non_numeric():
+    data = pd.DataFrame(
+        {
+            "Time": [100],
+            "V1": ["invalid"],
+            "Amount": [50.0],
+        }
+    )
+
+    feature_names = [
+        "Time",
+        "V1",
+        "Amount",
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="must be numeric",
+    ):
+        validate_transaction_data(
+            data,
+            feature_names,
+        )
+
+
+def test_validate_transaction_data_valid_data():
+    data = pd.DataFrame(
+        {
+            "Time": [100, 200],
+            "V1": [0.5, -1.2],
+            "Amount": [50.0, 75.0],
+            "Extra_Column": ["A", "B"],
+        }
+    )
+
+    feature_names = [
+        "Time",
+        "V1",
+        "Amount",
+    ]
+
+    result = validate_transaction_data(
+        data,
+        feature_names,
+    )
+
+    assert list(result.columns) == feature_names
+    assert len(result) == 2
+    assert "Extra_Column" not in result.columns
 

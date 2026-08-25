@@ -91,3 +91,44 @@ def calculate_classification_metrics(
             zero_division=0,
         ),
     }
+def validate_transaction_data(
+    data,
+    feature_names,
+):
+    """Validate transaction data before model prediction."""
+
+    missing_features = [
+        feature
+        for feature in feature_names
+        if feature not in data.columns
+    ]
+
+    if missing_features:
+        raise ValueError(
+            "Missing required features: "
+            + ", ".join(missing_features)
+        )
+
+    transaction_data = data[feature_names].copy()
+
+    if transaction_data.isna().any().any():
+        missing_columns = transaction_data.columns[
+            transaction_data.isna().any()
+        ].tolist()
+
+        raise ValueError(
+            "Missing values in: "
+            + ", ".join(missing_columns)
+        )
+
+    try:
+        transaction_data = transaction_data.apply(
+            pd.to_numeric,
+            errors="raise",
+        )
+    except (ValueError, TypeError):
+        raise ValueError(
+            "All required feature values must be numeric."
+        )
+
+    return transaction_data
