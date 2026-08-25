@@ -449,6 +449,10 @@ if uploaded_file is not None:
         feature for feature in feature_names
         if feature not in data.columns
     ]
+    extra_columns = [
+    column for column in data.columns
+    if column not in feature_names
+    ]
 
     if missing_features:
         st.error(
@@ -474,7 +478,17 @@ if uploaded_file is not None:
     else:
         st.success("All required features are present!")
 
+        if extra_columns:
+            st.warning(
+                f"{len(extra_columns)} extra column(s) will "
+                "not be used for prediction."
+            )
+
+            with st.expander("View extra columns"):
+                st.write(extra_columns)
+
         # Keep only the features used by the model
+
         transaction_data = data[feature_names].copy()
 
         # Check for missing values
