@@ -451,8 +451,22 @@ if uploaded_file is not None:
     ]
 
     if missing_features:
-        st.error("Missing required features:")
-        st.write(missing_features)
+        st.error(
+            "This CSV cannot be used for batch prediction."
+        )
+
+        st.warning(
+            f"{len(missing_features)} required feature(s) "
+            "are missing."
+        )
+
+        st.info(
+            "Expected transaction features: "
+            "Time, V1–V28, and Amount."
+        )
+
+        with st.expander("View missing feature columns"):
+            st.write(missing_features)
 
     else:
         st.success("All required features are present!")
