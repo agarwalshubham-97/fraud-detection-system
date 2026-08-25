@@ -465,6 +465,9 @@ if uploaded_file is not None:
             "Time, V1–V28, and Amount."
         )
 
+        with st.expander("View detected columns in this CSV"):
+            st.write(data.columns.tolist())
+
         with st.expander("View missing feature columns"):
             st.write(missing_features)
 
