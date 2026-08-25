@@ -62,6 +62,14 @@ def test_probability_range():
 def test_threshold_valid():
     """Check that the configured threshold is valid."""
 
+    assert config is not None
+    assert "threshold" in config
+
     threshold = config["threshold"]
+
+    assert isinstance(
+        threshold,
+        (int, float),
+    )
 
     assert 0 < threshold < 1
