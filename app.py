@@ -366,7 +366,12 @@ if st.button(
         st.stop()
 
     # Apply saved threshold
-    if probability >= evaluation_threshold:
+    prediction = apply_threshold(
+        [probability],
+        evaluation_threshold,
+    ).iloc[0]
+
+    if prediction == 1:
         result = "FRAUD"
     else:
         result = "NORMAL"
@@ -513,8 +518,10 @@ if uploaded_file is not None:
         # Use the threshold selected during model evaluation
         threshold = evaluation_threshold
 
-
-        predictions = (probabilities >= threshold).astype(int)
+        predictions = apply_threshold(
+            probabilities,
+            threshold,
+        )
         fraud_count = int((predictions == 1).sum())
         normal_count = int((predictions == 0).sum())
         total_transactions = len(predictions)
