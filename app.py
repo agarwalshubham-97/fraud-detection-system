@@ -6,7 +6,7 @@ from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
     validate_transaction_data,
-    validate_model_config,
+    load_model_artifacts,
 )
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
@@ -21,15 +21,18 @@ from sklearn.metrics import (
     average_precision_score,
 )
 
-model = joblib.load("models/fraud_detection_model.pkl")
-feature_names = joblib.load("models/feature_names.pkl")
-config = joblib.load("models/model_config.pkl")
 try:
-    validate_model_config(config)
+    model, feature_names, config = (
+        load_model_artifacts(
+            "models/fraud_detection_model.pkl",
+            "models/feature_names.pkl",
+            "models/model_config.pkl",
+        )
+    )
 
-except ValueError as error:
+except (ValueError, FileNotFoundError) as error:
     st.error(
-        f"Invalid model configuration: {error}"
+        f"Unable to load model artifacts: {error}"
     )
     st.stop()
 
