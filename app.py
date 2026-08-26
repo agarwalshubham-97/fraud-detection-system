@@ -6,6 +6,7 @@ from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
     validate_transaction_data,
+    validate_model_config,
 )
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
@@ -23,6 +24,14 @@ from sklearn.metrics import (
 model = joblib.load("models/fraud_detection_model.pkl")
 feature_names = joblib.load("models/feature_names.pkl")
 config = joblib.load("models/model_config.pkl")
+try:
+    validate_model_config(config)
+
+except ValueError as error:
+    st.error(
+        f"Invalid model configuration: {error}"
+    )
+    st.stop()
 
 # Load real model evaluation data
 evaluation_data = pd.read_csv("real_model_evaluation.csv")
