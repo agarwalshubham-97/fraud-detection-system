@@ -132,3 +132,24 @@ def validate_transaction_data(
         )
 
     return transaction_data
+def validate_model_config(config):
+    """Validate the model configuration."""
+
+    if "threshold" not in config:
+        raise ValueError(
+            "Model configuration must contain 'threshold'."
+        )
+
+    threshold = config["threshold"]
+
+    if not isinstance(threshold, (int, float)):
+        raise ValueError(
+            "Threshold must be numeric."
+        )
+
+    if not 0 < threshold < 1:
+        raise ValueError(
+            "Threshold must be between 0 and 1."
+        )
+
+    return True

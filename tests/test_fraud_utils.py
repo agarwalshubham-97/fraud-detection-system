@@ -5,6 +5,7 @@ from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
     validate_transaction_data,
+    validate_model_config,
 )
 def test_apply_threshold_invalid_threshold():
     probabilities = [0.2, 0.5, 0.8]
@@ -206,4 +207,57 @@ def test_validate_transaction_data_valid_data():
     assert list(result.columns) == feature_names
     assert len(result) == 2
     assert "Extra_Column" not in result.columns
+def test_validate_model_config_missing_threshold():
+    """Check that a missing threshold raises an error."""
 
+    config = {}
+
+    with pytest.raises(
+        ValueError,
+        match="Model configuration must contain 'threshold'.",
+    ):
+        validate_model_config(config)
+
+
+def test_validate_model_config_non_numeric_threshold():
+    """Check that a non-numeric threshold raises an error."""
+
+    config = {"threshold": "invalid"}
+
+    with pytest.raises(
+        ValueError,
+        match="Threshold must be numeric.",
+    ):
+        validate_model_config(config)
+
+
+def test_validate_model_config_below_range():
+    """Check that a threshold below the valid range raises an error."""
+
+    config = {"threshold": -0.1}
+
+    with pytest.raises(
+        ValueError,
+        match="Threshold must be between 0 and 1.",
+    ):
+        validate_model_config(config)
+
+
+def test_validate_model_config_above_range():
+    """Check that a threshold above the valid range raises an error."""
+
+    config = {"threshold": 1.1}
+
+    with pytest.raises(
+        ValueError,
+        match="Threshold must be between 0 and 1.",
+    ):
+        validate_model_config(config)
+
+
+def test_validate_model_config_valid():
+    """Check that a valid model configuration passes validation."""
+
+    config = {"threshold": 0.5}
+
+    assert validate_model_config(config) is True
