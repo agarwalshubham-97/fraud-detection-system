@@ -1,4 +1,5 @@
 import pandas as pd
+import joblib
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -132,6 +133,8 @@ def validate_transaction_data(
         )
 
     return transaction_data
+
+
 def validate_model_config(config):
     """Validate the model configuration."""
 
@@ -153,3 +156,28 @@ def validate_model_config(config):
         )
 
     return True
+
+
+def load_model_artifacts(
+    model_path,
+    feature_names_path,
+    config_path,
+):
+    """Load and validate model artifacts."""
+
+    model = joblib.load(model_path)
+
+    feature_names = joblib.load(
+        feature_names_path
+    )
+
+    config = joblib.load(config_path)
+
+    if not feature_names:
+        raise ValueError(
+            "Feature names cannot be empty."
+        )
+
+    validate_model_config(config)
+
+    return model, feature_names, config

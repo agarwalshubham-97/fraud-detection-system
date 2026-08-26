@@ -1,12 +1,16 @@
 import pandas as pd
 import pytest
+import joblib
 
 from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
     validate_transaction_data,
     validate_model_config,
+    load_model_artifacts,
 )
+
+
 def test_apply_threshold_invalid_threshold():
     probabilities = [0.2, 0.5, 0.8]
 
@@ -261,3 +265,91 @@ def test_validate_model_config_valid():
     config = {"threshold": 0.5}
 
     assert validate_model_config(config) is True
+
+
+def test_load_model_artifacts_valid(tmp_path):
+    """Check that valid model artifacts load successfully."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    test_model = {"name": "test_model"}
+    test_feature_names = ["Time", "V1", "Amount"]
+    test_config = {"threshold": 0.5}
+
+    joblib.dump(test_model, model_path)
+    joblib.dump(
+        test_feature_names,
+        feature_names_path,
+    )
+    joblib.dump(
+        test_config,
+        config_path,
+    )
+
+    model, feature_names, config = (
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
+    )
+
+    assert model == test_model
+    assert feature_names == test_feature_names
+    assert config == test_config
+
+
+def test_load_model_artifacts_empty_feature_names(
+    tmp_path,
+):
+    """Check that empty feature names raise an error."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump({"name": "test_model"}, model_path)
+    joblib.dump([], feature_names_path)
+    joblib.dump(
+        {"threshold": 0.5},
+        config_path,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Feature names cannot be empty",
+    ):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
+
+
+def test_load_model_artifacts_invalid_config(
+    tmp_path,
+):
+    """Check that an invalid configuration raises an error."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump({"name": "test_model"}, model_path)
+    joblib.dump(
+        ["Time", "V1", "Amount"],
+        feature_names_path,
+    )
+    joblib.dump({}, config_path)
+
+    with pytest.raises(
+        ValueError,
+        match="Model configuration must contain 'threshold'",
+    ):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
