@@ -166,6 +166,10 @@ def load_model_artifacts(
     """Load and validate model artifacts."""
 
     model = joblib.load(model_path)
+    if model is None:
+        raise ValueError(
+            "Model cannot be empty."
+        )
 
     feature_names = joblib.load(
         feature_names_path

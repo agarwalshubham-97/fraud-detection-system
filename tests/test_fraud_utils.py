@@ -479,3 +479,56 @@ def test_load_evaluation_data_invalid_probability(tmp_path):
         match="Probability values must be between 0 and 1",
     ):
         load_evaluation_data(file_path)
+
+def test_load_model_artifacts_missing_file(tmp_path):
+    """Check that missing model artifacts raise FileNotFoundError."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump(
+        ["Time", "V1", "Amount"],
+        feature_names_path,
+    )
+
+    joblib.dump(
+        {"threshold": 0.5},
+        config_path,
+    )
+
+    with pytest.raises(FileNotFoundError):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
+
+def test_load_model_artifacts_empty_model(tmp_path):
+    """Check that an empty model artifact raises an error."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump(None, model_path)
+
+    joblib.dump(
+        ["Time", "V1", "Amount"],
+        feature_names_path,
+    )
+
+    joblib.dump(
+        {"threshold": 0.5},
+        config_path,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Model cannot be empty",
+    ):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
