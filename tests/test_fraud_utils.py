@@ -8,6 +8,7 @@ from fraud_utils import (
     validate_transaction_data,
     validate_model_config,
     load_model_artifacts,
+    load_evaluation_data,
 )
 
 
@@ -353,3 +354,128 @@ def test_load_model_artifacts_invalid_config(
             feature_names_path,
             config_path,
         )
+
+def test_load_evaluation_data_valid(tmp_path):
+    """Check that valid evaluation data loads successfully."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1, 0, 1],
+            "Probability": [0.10, 0.90, 0.20, 0.80],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    result = load_evaluation_data(file_path)
+
+    assert list(result.columns) == [
+        "Actual",
+        "Probability",
+    ]
+    assert len(result) == 4
+
+
+def test_load_evaluation_data_missing_actual(tmp_path):
+    """Check that a missing Actual column raises an error."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Probability": [0.10, 0.90],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Actual",
+    ):
+        load_evaluation_data(file_path)
+
+
+def test_load_evaluation_data_missing_probability(tmp_path):
+    """Check that a missing Probability column raises an error."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Probability",
+    ):
+        load_evaluation_data(file_path)
+
+
+def test_load_evaluation_data_missing_values(tmp_path):
+    """Check that missing evaluation values raise an error."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1],
+            "Probability": [0.10, None],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="missing values",
+    ):
+        load_evaluation_data(file_path)
+
+
+def test_load_evaluation_data_invalid_actual(tmp_path):
+    """Check that Actual values must be 0 or 1."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1, 2],
+            "Probability": [0.10, 0.90, 0.50],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Actual values must be either 0 or 1",
+    ):
+        load_evaluation_data(file_path)
+
+
+def test_load_evaluation_data_invalid_probability(tmp_path):
+    """Check that Probability values must be between 0 and 1."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1, 0],
+            "Probability": [0.10, 1.20, 0.50],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Probability values must be between 0 and 1",
+    ):
+        load_evaluation_data(file_path)

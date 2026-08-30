@@ -7,6 +7,7 @@ from fraud_utils import (
     calculate_classification_metrics,
     validate_transaction_data,
     load_model_artifacts,
+    load_evaluation_data,
 )
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
@@ -37,7 +38,16 @@ except (ValueError, FileNotFoundError) as error:
     st.stop()
 
 # Load real model evaluation data
-evaluation_data = pd.read_csv("real_model_evaluation.csv")
+try:
+    evaluation_data = load_evaluation_data(
+        "real_model_evaluation.csv"
+    )
+
+except (ValueError, FileNotFoundError) as error:
+    st.error(
+        f"Unable to load evaluation data: {error}"
+    )
+    st.stop()
 # Sidebar
 st.sidebar.title("💳 Fraud Detection")
 st.sidebar.markdown("---")

@@ -181,3 +181,58 @@ def load_model_artifacts(
     validate_model_config(config)
 
     return model, feature_names, config
+
+def load_evaluation_data(file_path):
+    """Load and validate model evaluation data."""
+
+    evaluation_data = pd.read_csv(file_path)
+
+    required_columns = [
+        "Actual",
+        "Probability",
+    ]
+
+    missing_columns = [
+        column
+        for column in required_columns
+        if column not in evaluation_data.columns
+    ]
+
+    if missing_columns:
+        raise ValueError(
+            "Evaluation data is missing required columns: "
+            + ", ".join(missing_columns)
+        )
+
+    if evaluation_data[required_columns].isnull().any().any():
+        raise ValueError(
+            "Evaluation data cannot contain missing values."
+        )
+
+    if not pd.api.types.is_numeric_dtype(
+        evaluation_data["Actual"]
+    ):
+        raise ValueError(
+            "Actual values must be numeric."
+        )
+
+    if not pd.api.types.is_numeric_dtype(
+        evaluation_data["Probability"]
+    ):
+        raise ValueError(
+            "Probability values must be numeric."
+        )
+
+    if not evaluation_data["Actual"].isin([0, 1]).all():
+        raise ValueError(
+            "Actual values must be either 0 or 1."
+        )
+
+    if not evaluation_data["Probability"].between(
+        0, 1
+    ).all():
+        raise ValueError(
+            "Probability values must be between 0 and 1."
+        )
+
+    return evaluation_data
