@@ -14,6 +14,10 @@ st.set_page_config(
     page_icon="💳",
     layout="wide"
 )
+def apply_recommended_threshold():
+    st.session_state["threshold_slider"] = (
+        st.session_state["recommended_threshold"]
+    )
 from sklearn.metrics import (
     confusion_matrix,
     precision_recall_curve,
@@ -48,6 +52,7 @@ except (ValueError, FileNotFoundError) as error:
         f"Unable to load evaluation data: {error}"
     )
     st.stop()
+
 # Sidebar
 st.sidebar.title("💳 Fraud Detection")
 st.sidebar.markdown("---")
@@ -65,19 +70,18 @@ st.sidebar.write(
 st.sidebar.subheader("⚙️ Model Settings")
 
 # Initialize threshold
-if "threshold" not in st.session_state:
-    st.session_state["threshold"] = float(config["threshold"])
+if "threshold_slider" not in st.session_state:
+    st.session_state["threshold_slider"] = float(
+        config["threshold"]
+    )
 
 evaluation_threshold = st.sidebar.slider(
     "Classification Threshold",
     min_value=0.0,
     max_value=1.0,
-    value=st.session_state["threshold"],
-    step=0.01
+    step=0.01,
+    key="threshold_slider",
 )
-
-# Keep session state updated
-st.session_state["threshold"] = evaluation_threshold
 
 st.sidebar.write(
     f"**Threshold:** {evaluation_threshold * 100:.0f}%"
@@ -275,6 +279,7 @@ best_threshold_row = threshold_df.loc[
 best_threshold = float(
     best_threshold_row["Threshold"]
 )
+st.session_state["recommended_threshold"] = best_threshold
 
 st.success(
     f"Recommended threshold based on the highest F1 Score: "
@@ -318,11 +323,13 @@ else:
         f"Recommended threshold: {best_threshold:.2f} | "
         f"Difference: {threshold_difference:.2f}"
     )
-if st.button("🎯 Apply Recommended Threshold"):
 
-    st.session_state["threshold"] = best_threshold
 
-    st.rerun()
+
+st.button(
+    "🎯 Apply Recommended Threshold",
+    on_click=apply_recommended_threshold,
+)
 st.header("🔍 Single Transaction Prediction")
 
 st.write(
