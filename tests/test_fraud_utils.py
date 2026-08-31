@@ -449,6 +449,46 @@ def test_load_evaluation_data_missing_values(tmp_path):
     ):
         load_evaluation_data(file_path)
 
+def test_load_evaluation_data_non_numeric_actual(tmp_path):
+    """Check that non-numeric Actual values raise an error."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": ["normal", "fraud"],
+            "Probability": [0.10, 0.90],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Actual values must be numeric",
+    ):
+        load_evaluation_data(file_path)
+
+
+def test_load_evaluation_data_non_numeric_probability(tmp_path):
+    """Check that non-numeric Probability values raise an error."""
+
+    file_path = tmp_path / "evaluation.csv"
+
+    data = pd.DataFrame(
+        {
+            "Actual": [0, 1],
+            "Probability": ["low", "high"],
+        }
+    )
+
+    data.to_csv(file_path, index=False)
+
+    with pytest.raises(
+        ValueError,
+        match="Probability values must be numeric",
+    ):
+        load_evaluation_data(file_path)
 
 def test_load_evaluation_data_invalid_actual(tmp_path):
     """Check that Actual values must be 0 or 1."""
