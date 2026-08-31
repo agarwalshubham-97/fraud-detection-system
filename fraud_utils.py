@@ -174,15 +174,23 @@ def load_model_artifacts(
     feature_names = joblib.load(
         feature_names_path
     )
-
-    config = joblib.load(config_path)
-
     if not feature_names:
         raise ValueError(
             "Feature names cannot be empty."
         )
+    config = joblib.load(config_path)
 
     validate_model_config(config)
+
+    if not hasattr(model, "predict"):
+        raise ValueError(
+            "Model must provide a 'predict' method."
+        )
+
+    if not hasattr(model, "predict_proba"):
+        raise ValueError(
+            "Model must provide a 'predict_proba' method."
+        )
 
     return model, feature_names, config
 

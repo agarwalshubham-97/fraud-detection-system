@@ -2,6 +2,17 @@ import pandas as pd
 import pytest
 import joblib
 
+class PredictOnlyModel:
+    def predict(self, data):
+        return [0]
+
+class TestModel:
+    def predict(self, data):
+        return [0]
+
+    def predict_proba(self, data):
+        return [[1.0, 0.0]]
+
 from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
@@ -275,7 +286,7 @@ def test_load_model_artifacts_valid(tmp_path):
     feature_names_path = tmp_path / "features.pkl"
     config_path = tmp_path / "config.pkl"
 
-    test_model = {"name": "test_model"}
+    test_model = TestModel()
     test_feature_names = ["Time", "V1", "Amount"]
     test_config = {"threshold": 0.5}
 
@@ -297,7 +308,7 @@ def test_load_model_artifacts_valid(tmp_path):
         )
     )
 
-    assert model == test_model
+    assert isinstance(model, TestModel)
     assert feature_names == test_feature_names
     assert config == test_config
 
@@ -526,6 +537,70 @@ def test_load_model_artifacts_empty_model(tmp_path):
     with pytest.raises(
         ValueError,
         match="Model cannot be empty",
+    ):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
+
+def test_load_model_artifacts_invalid_model(tmp_path):
+    """Check that an invalid model artifact raises an error."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump(
+        {"name": "not_a_model"},
+        model_path,
+    )
+
+    joblib.dump(
+        ["Time", "V1", "Amount"],
+        feature_names_path,
+    )
+
+    joblib.dump(
+        {"threshold": 0.5},
+        config_path,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Model must provide a 'predict' method",
+    ):
+        load_model_artifacts(
+            model_path,
+            feature_names_path,
+            config_path,
+        )
+
+def test_load_model_artifacts_missing_predict_proba(tmp_path):
+    """Check that a model without predict_proba raises an error."""
+
+    model_path = tmp_path / "model.pkl"
+    feature_names_path = tmp_path / "features.pkl"
+    config_path = tmp_path / "config.pkl"
+
+    joblib.dump(
+        PredictOnlyModel(),
+        model_path,
+    )
+
+    joblib.dump(
+        ["Time", "V1", "Amount"],
+        feature_names_path,
+    )
+
+    joblib.dump(
+        {"threshold": 0.5},
+        config_path,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Model must provide a 'predict_proba' method",
     ):
         load_model_artifacts(
             model_path,
