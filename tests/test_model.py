@@ -152,3 +152,35 @@ def test_batch_prediction_output():
         probabilities.sum(axis=1),
         1.0
     )
+
+def test_model_prediction_with_different_transactions():
+    """Check predictions for transactions with different values."""
+
+    sample_data = pd.DataFrame(
+        np.zeros((3, len(feature_names))),
+        columns=feature_names
+    )
+
+    sample_data["Time"] = [100.0, 5000.0, 20000.0]
+    sample_data["Amount"] = [10.0, 500.0, 5000.0]
+
+    predictions = model.predict(sample_data)
+    probabilities = model.predict_proba(sample_data)
+
+    assert len(predictions) == 3
+    assert probabilities.shape == (3, 2)
+
+    assert all(
+        prediction in [0, 1]
+        for prediction in predictions
+    )
+
+    assert np.all(
+        (probabilities >= 0)
+        & (probabilities <= 1)
+    )
+
+    assert np.allclose(
+        probabilities.sum(axis=1),
+        1.0
+    )
