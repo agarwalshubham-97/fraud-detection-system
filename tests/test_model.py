@@ -123,3 +123,32 @@ def test_threshold_valid():
     )
 
     assert 0 < threshold < 1
+
+def test_batch_prediction_output():
+    """Check that the model predicts multiple transactions correctly."""
+
+    sample_data = pd.DataFrame(
+        np.zeros((5, len(feature_names))),
+        columns=feature_names
+    )
+
+    predictions = model.predict(sample_data)
+    probabilities = model.predict_proba(sample_data)
+
+    assert len(predictions) == 5
+    assert probabilities.shape == (5, 2)
+
+    assert all(
+        prediction in [0, 1]
+        for prediction in predictions
+    )
+
+    assert np.all(
+        (probabilities >= 0)
+        & (probabilities <= 1)
+    )
+
+    assert np.allclose(
+        probabilities.sum(axis=1),
+        1.0
+    )
