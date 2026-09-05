@@ -1,3 +1,4 @@
+import shap
 import pandas as pd
 import joblib
 from sklearn.metrics import (
@@ -134,7 +135,6 @@ def validate_transaction_data(
 
     return transaction_data
 
-
 def validate_model_config(config):
     """Validate the model configuration."""
 
@@ -248,3 +248,19 @@ def load_evaluation_data(file_path):
         )
 
     return evaluation_data
+
+def explain_prediction(model, transaction_data):
+    """Generate SHAP values for a transaction prediction."""
+
+    explainer = shap.TreeExplainer(model)
+
+    shap_values = explainer.shap_values(
+        transaction_data
+    )
+    if isinstance(shap_values, list):
+        return shap_values[1]
+
+    if shap_values.ndim == 3:
+        return shap_values[:, :, 1]
+
+    return shap_values

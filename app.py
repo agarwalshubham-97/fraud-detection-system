@@ -2,12 +2,14 @@
 import streamlit as st
 import joblib
 import pandas as pd
+
 from fraud_utils import (
     apply_threshold,
     calculate_classification_metrics,
     validate_transaction_data,
     load_model_artifacts,
     load_evaluation_data,
+    explain_prediction,
 )
 st.set_page_config(
     page_title="Credit Card Fraud Detection",
@@ -427,6 +429,73 @@ if st.button(
 
     else:
         st.error("🔴 High Risk")
+
+
+    # 🔍 SHAP EXPLANATION GOES HERE
+
+
+    st.subheader("🔍 Why did the model make this prediction?")
+
+    try:
+        shap_values = explain_prediction(
+            model,
+            transaction,
+        )
+
+        feature_contributions = pd.DataFrame(
+            {
+                "Feature": feature_names,
+                "SHAP Value": shap_values[0],
+            }
+        )
+
+        feature_contributions["Absolute Impact"] = (
+            feature_contributions["SHAP Value"].abs()
+        )
+
+        feature_contributions = (
+            feature_contributions
+            .sort_values(
+                "Absolute Impact",
+                ascending=False,
+            )
+            .head(10)
+        )
+
+        feature_contributions["Direction"] = (
+            feature_contributions["SHAP Value"]
+            .apply(
+                lambda value:
+                "Increases fraud risk"
+                if value > 1e-10
+                else (
+                    "Reduces fraud risk"
+                    if value < -1e-10
+                    else "No significant impact"
+                )
+            )
+        )
+
+        st.write(
+            "The following features had the strongest "
+            "influence on this prediction."
+        )
+
+        st.dataframe(
+            feature_contributions[
+                [
+                    "Feature",
+                    "SHAP Value",
+                    "Direction",
+                ]
+            ],
+            width="stretch",
+        )
+
+    except Exception as error:
+        st.warning(
+            f"Unable to generate SHAP explanation: {error}"
+        )
 st.divider()
 
 st.header("📂 Batch Transaction Prediction")

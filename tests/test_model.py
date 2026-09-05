@@ -2,6 +2,7 @@ import joblib
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from fraud_utils import explain_prediction
 
 
 # Get project root directory
@@ -183,4 +184,89 @@ def test_model_prediction_with_different_transactions():
     assert np.allclose(
         probabilities.sum(axis=1),
         1.0
+    )
+
+def test_shap_explanation_output():
+    """Check that SHAP generates one contribution per feature."""
+
+    sample_data = create_sample_data()
+
+    shap_values = explain_prediction(
+        model,
+        sample_data,
+    )
+
+    assert shap_values.shape == (
+        1,
+        len(feature_names),
+    )
+
+    assert np.isfinite(
+        shap_values
+    ).all()
+
+def test_shap_explanation_list_output(monkeypatch):
+    """Check that list-based SHAP output returns fraud-class values."""
+
+    class FakeExplainer:
+        def __init__(self, model):
+            pass
+
+        def shap_values(self, data):
+            return [
+                np.array([[0.1, 0.2]]),
+                np.array([[0.3, 0.4]]),
+            ]
+
+    monkeypatch.setattr(
+        "fraud_utils.shap.TreeExplainer",
+        FakeExplainer,
+    )
+
+    data = pd.DataFrame(
+        [[0.0, 0.0]],
+        columns=["feature_1", "feature_2"],
+    )
+
+    result = explain_prediction(
+        model,
+        data,
+    )
+
+    assert result.shape == (1, 2)
+    assert np.array_equal(
+        result,
+        np.array([[0.3, 0.4]]),
+    )
+
+
+def test_shap_explanation_array_output(monkeypatch):
+    """Check that standard 2-D SHAP output is returned unchanged."""
+
+    class FakeExplainer:
+        def __init__(self, model):
+            pass
+
+        def shap_values(self, data):
+            return np.array([[0.1, 0.2]])
+
+    monkeypatch.setattr(
+        "fraud_utils.shap.TreeExplainer",
+        FakeExplainer,
+    )
+
+    data = pd.DataFrame(
+        [[0.0, 0.0]],
+        columns=["feature_1", "feature_2"],
+    )
+
+    result = explain_prediction(
+        model,
+        data,
+    )
+
+    assert result.shape == (1, 2)
+    assert np.array_equal(
+        result,
+        np.array([[0.1, 0.2]]),
     )
