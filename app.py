@@ -885,8 +885,10 @@ if hasattr(model, "feature_importances_"):
         ascending=False
     )
 
+    top_features = feature_importance_data.head(10)
+
     st.bar_chart(
-        feature_importance_data.set_index("Feature")
+        top_features.set_index("Feature")
     )
 
     st.subheader("🔝 Top 10 Most Important Features")
