@@ -763,8 +763,6 @@ if uploaded_file is not None:
             y="Fraud Probability",
             
         )
-        
-        
         st.divider()
         st.subheader("🧮 Confusion Matrix")
 
@@ -806,6 +804,16 @@ if uploaded_file is not None:
         
  # Display confusion matrix
 st.divider()
+st.subheader("🧮 Confusion Matrix")
+
+y_pred = apply_threshold(
+    y_probability,
+    evaluation_threshold,
+)
+cm = confusion_matrix(
+    y_actual,
+    y_pred
+)
 
 st.header("📈 Real Model Evaluation")
 # Real test-set data
