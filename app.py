@@ -431,9 +431,6 @@ if st.button(
         st.error("🔴 High Risk")
 
 
-    # 🔍 SHAP EXPLANATION GOES HERE
-
-
     st.subheader("🔍 Why did the model make this prediction?")
 
     try:
