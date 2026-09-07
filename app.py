@@ -334,32 +334,51 @@ st.button(
 st.header("🔍 Single Transaction Prediction")
 
 st.write(
-    "Enter the transaction amount and time. "
-    "The remaining model features are set to their "
-    "baseline value for this demonstration."
+    "Use a complete transaction from the test dataset to "
+    "demonstrate the model prediction and SHAP explanation."
 )
 
 st.info(
-    "The trained model expects 30 features: Time, V1–V28, and Amount."
+    "The trained Random Forest model expects 30 features: "
+    "Time, V1–V28, and Amount."
 )
 
-input_col1, input_col2 = st.columns(2)
-
-with input_col1:
-    amount = st.number_input(
-        "💰 Transaction Amount",
-        min_value=0.0,
-        value=100.0,
-        step=1.0
+# Load sample transactions for demonstration
+try:
+    sample_transactions = pd.read_csv(
+        "test_transactions.csv"
     )
 
-with input_col2:
-    time = st.number_input(
-        "⏱️ Transaction Time",
-        min_value=0.0,
-        value=0.0,
-        step=1.0
+    sample_transactions = sample_transactions[
+        feature_names
+    ]
+
+except (FileNotFoundError, ValueError, KeyError) as error:
+    st.error(
+        f"Unable to load sample transactions: {error}"
     )
+    st.stop()
+
+st.subheader("🧪 Select a Sample Transaction")
+
+selected_transaction = st.selectbox(
+    "Choose a test transaction",
+    options=range(len(sample_transactions)),
+    format_func=lambda index:
+        f"Transaction {index + 1} "
+        f"(Amount: ${sample_transactions.iloc[index]['Amount']:.2f})"
+)
+
+transaction = sample_transactions.iloc[
+    selected_transaction
+].to_frame().T
+
+st.write("### Selected Transaction")
+
+st.dataframe(
+    transaction,
+    width="stretch"
+)
 
 if st.button(
     "🔎 Check Transaction",
@@ -367,23 +386,6 @@ if st.button(
     width="stretch"
 ):
 
-    # Create transaction using the model's 30 required features
-    transaction_data = {}
-
-    for feature in feature_names:
-        transaction_data[feature] = 0.0
-
-    # Use the values entered by the user
-    transaction_data["Time"] = time
-    transaction_data["Amount"] = amount
-
-    # Convert to DataFrame
-    transaction = pd.DataFrame([transaction_data])
-
-    # Make sure feature order is correct
-    transaction = transaction[feature_names]
-
-    # Get fraud probability
     try:
         probability = model.predict_proba(
             transaction
@@ -395,42 +397,60 @@ if st.button(
         )
         st.stop()
 
-    # Apply saved threshold
+    # Apply selected classification threshold
     prediction = apply_threshold(
         [probability],
         evaluation_threshold,
     ).iloc[0]
 
-    if prediction == 1:
-        result = "FRAUD"
-    else:
-        result = "NORMAL"
-
-    st.subheader("Prediction Result")
+    result = (
+        "FRAUD"
+        if prediction == 1
+        else "NORMAL"
+    )
 
     probability_percent = probability * 100
+
+    st.subheader("Prediction Result")
 
     if result == "FRAUD":
         st.error("🚨 FRAUD TRANSACTION")
     else:
         st.success("✅ NORMAL TRANSACTION")
 
-    st.metric(
-        "Fraud Probability",
-        f"{probability_percent:.2f}%"
-    )
+    result_col1, result_col2 = st.columns(2)
+
+    with result_col1:
+        st.metric(
+            "Fraud Probability",
+            f"{probability_percent:.2f}%"
+        )
+
+    with result_col2:
+        st.metric(
+            "Classification Threshold",
+            f"{evaluation_threshold * 100:.0f}%"
+        )
+
+    # Risk level
+    st.subheader("⚠️ Risk Level")
 
     if probability_percent < 10:
-        st.success("🟢 Low Risk")
+        risk_level = "🟢 Low Risk"
+        st.success(risk_level)
 
     elif probability_percent < 50:
-        st.warning("🟡 Medium Risk")
+        risk_level = "🟡 Medium Risk"
+        st.warning(risk_level)
 
     else:
-        st.error("🔴 High Risk")
+        risk_level = "🔴 High Risk"
+        st.error(risk_level)
 
-
-    st.subheader("🔍 Why did the model make this prediction?")
+    # SHAP explanation
+    st.subheader(
+        "🔍 Why did the model make this prediction?"
+    )
 
     try:
         shap_values = explain_prediction(
@@ -473,8 +493,8 @@ if st.button(
         )
 
         st.write(
-            "The following features had the strongest "
-            "influence on this prediction."
+            "The following are the 10 features with the "
+            "strongest influence on this prediction."
         )
 
         st.dataframe(
