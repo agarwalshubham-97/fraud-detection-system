@@ -1,6 +1,5 @@
 
 import streamlit as st
-import joblib
 import pandas as pd
 
 from fraud_utils import (
@@ -802,18 +801,9 @@ if uploaded_file is not None:
         with cm_col4:
             st.metric("True Positive", tp)
         
- # Display confusion matrix
 st.divider()
 
-y_pred = apply_threshold(
-    y_probability,
-    evaluation_threshold,
-)
-
 st.header("📈 Real Model Evaluation")
-# Real test-set data
-y_actual = evaluation_data["Actual"]
-y_probability = evaluation_data["Probability"]
 
 
 
