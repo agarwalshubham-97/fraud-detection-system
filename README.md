@@ -23,6 +23,8 @@ The application supports individual transaction predictions, batch CSV predictio
 - 🎚️ Threshold sensitivity analysis
 - 🏆 Recommended threshold based on F1 Score
 - ⬇️ Downloadable prediction results
+- 🧠 SHAP model explanations
+- 📊 Feature importance visualization
 - 🖥️ Interactive Streamlit dashboard
 
 ---
@@ -91,6 +93,7 @@ Possible missed fraud transactions
 - Scikit-learn
 - Joblib
 - Streamlit
+- SHAP
 - Matplotlib
 - Seaborn
 - Jupyter Notebook
@@ -185,6 +188,26 @@ Users can enter transaction feature values and receive:
 - Fraud probability
 - Classification threshold
 
+### Model Explainability
+
+The dashboard provides model explainability using SHAP.
+
+For individual predictions, users can view:
+
+- Prediction result
+- Fraud probability
+- Risk level
+- Top 10 feature contributions
+- SHAP values
+- Direction of each feature's influence
+  - Increases fraud risk
+  - Reduces fraud risk
+  - No significant impact
+
+The dashboard also provides Random Forest feature importance visualization
+showing the top 10 most important features used by the model.
+
+
 ### Batch Prediction
 
 Users can upload a CSV file containing multiple transactions.
@@ -220,10 +243,41 @@ It displays:
 
 ---
 
+## 🧠 Model Explainability
+
+The dashboard provides two complementary explainability methods.
+
+### 📊 Feature Importance
+
+The Random Forest model's built-in feature importance scores identify the features that contribute most strongly to the model's overall decision-making.
+
+The dashboard displays:
+
+- Feature importance visualization
+- Top 10 most important features
+- Feature importance scores
+
+### 🔍 SHAP Explanations
+
+For individual transaction predictions, SHAP (SHapley Additive exPlanations) is used to explain why the model produced a particular prediction.
+
+For each prediction, the dashboard provides:
+
+- Prediction result
+- Fraud probability
+- Risk level
+- Top 10 feature contributions
+- SHAP Value
+- Direction of contribution:
+  - Increases fraud risk
+  - Reduces fraud risk
+  - No significant impact
+
+This provides transaction-level interpretability in addition to the global feature importance analysis.
+
+
 ## 📌 Future Improvements
 
-- Model explainability using SHAP
-- Feature importance visualization
 - Real-time transaction prediction
 - Database integration
 - REST API development
