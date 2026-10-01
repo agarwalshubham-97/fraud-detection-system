@@ -133,10 +133,7 @@ This complements the global Random Forest feature importance analysis with an ex
 
 ## 💳 Single Transaction Prediction
 
-The dashboard allows users to enter:
-
-* Transaction Amount
-* Transaction Time
+The dashboard allows users to select a complete transaction from the provided `test_transactions.csv` dataset.
 
 The trained model expects 30 features:
 
@@ -144,7 +141,7 @@ The trained model expects 30 features:
 Time, V1–V28, Amount
 ```
 
-For this demonstration interface, the remaining model features are initialized to baseline values.
+For the selected transaction, the dashboard uses all 30 model features.
 
 The prediction section displays:
 
@@ -156,7 +153,7 @@ The prediction section displays:
 * SHAP values
 * Direction of feature influence
 
-> **Note:** This interface is designed as a demonstration of the trained model and its explainability. It does not collect all 30 model features from the user.
+> **Note:** This interface uses complete sample transactions from the provided test dataset rather than collecting all 30 features manually from the user.
 
 ---
 
@@ -175,7 +172,7 @@ The dashboard provides:
 * Prediction summary
 * Transaction summary
 * Fraud vs. normal visualization
-* Confusion matrix when actual labels are available
+* Confusion matrix based on the saved real test-set evaluation data
 * Downloadable prediction results
 
 The expected model feature schema is:
@@ -344,7 +341,7 @@ The dashboard provides interactive evaluation of classification performance acro
 
 ### Single Transaction Prediction
 
-Enter transaction amount and time to generate a prediction and view its associated fraud probability and risk level.
+Select a complete transaction from the provided test dataset to generate a prediction and view its fraud probability, risk level, and SHAP explanation.
 
 ### Batch Prediction
 
