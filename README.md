@@ -379,8 +379,7 @@ This project is designed as a machine learning demonstration and portfolio proje
 
 Important limitations include:
 
-* The single-transaction interface does not collect all 30 model features.
-* The remaining single-transaction features are initialized to baseline values.
+* The single-transaction interface uses complete sample transactions from the provided test dataset rather than collecting all 30 features manually.
 * Model predictions depend on the quality and distribution of the training data.
 * Threshold selection involves a trade-off between different classification metrics.
 * This project is not intended to replace a production fraud detection system or financial risk-control process.
