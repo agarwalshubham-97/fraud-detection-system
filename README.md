@@ -394,7 +394,6 @@ Potential future improvements include:
 * Database integration
 * REST API development
 * Docker containerization
-* Cloud deployment
 * Automated model monitoring
 
 ---
