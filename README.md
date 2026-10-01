@@ -6,6 +6,8 @@ An end-to-end machine learning project for detecting potentially fraudulent cred
 
 The application supports single-transaction predictions, batch CSV predictions, configurable classification thresholds, model evaluation, confusion matrix analysis, ROC and Precision–Recall curves, threshold sensitivity analysis, feature importance, and transaction-level explanations.
 
+🚀 **Live Demo:** https://fraud-detection-system-dfssvvywyhuuw8mvctyh6c.streamlit.app/
+
 ---
 
 ## 🚀 Features
