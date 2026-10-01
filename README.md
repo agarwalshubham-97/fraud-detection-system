@@ -8,6 +8,10 @@ The application supports single-transaction predictions, batch CSV predictions, 
 
 🚀 **Live Demo:** https://fraud-detection-system-dfssvvywyhuuw8mvctyh6c.streamlit.app/
 
+## 🖥️ Dashboard Preview
+
+![Credit Card Fraud Detection Dashboard](dashboard.png)
+
 ---
 
 ## 🚀 Features
