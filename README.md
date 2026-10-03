@@ -247,6 +247,7 @@ The project also includes a GitHub Actions workflow that automatically runs the 
 * Seaborn
 * Jupyter Notebook
 * Pytest
+* Git & GitHub
 * GitHub Actions
 
 ---
