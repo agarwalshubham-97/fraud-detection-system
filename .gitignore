@@ -8,3 +8,7 @@ venv/
 env/
 .coverage
 .pytest_cache/
+
+.env
+.env.*
+!.env.example
